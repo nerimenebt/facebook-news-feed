@@ -26,7 +26,7 @@ class Post:SafeJsonObject {
         if key == "location"
         {
             location = Location()
-            location?.setValuesForKeys(value as! [String:AnyObject])
+            //location?.setValuesForKeys(value as! [String:AnyObject])
         }
         else
         {
@@ -35,17 +35,17 @@ class Post:SafeJsonObject {
     }
 }
 
-class Location:NSObject {
+class Location: NSObject {
     
-    var city:String?
-    var state:String?
+    var city: String?
+    var state: String?
 }
 
-class SafeJsonObject:NSObject {
+class SafeJsonObject: NSObject {
     
     override func setValue(_ value: Any?, forKey key: String)
     {
-        let selectorString = "set\(key.uppercased().characters.first!)\(String(key.characters.dropFirst())):"
+        let selectorString = "set\(key.uppercased().first!)\(String(key.dropFirst())):"
         let selector = Selector(selectorString)
         if responds(to: selector)
         {
@@ -107,7 +107,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
     {
         if let statusText = posts[indexPath.item].statusText
         {
-            let rect = NSString(string: statusText).boundingRect(with: Utility.shared.CGSizeMake(view.frame.width, 1000), options: NSStringDrawingOptions.usesFontLeading.union(NSStringDrawingOptions.usesLineFragmentOrigin), attributes: [NSFontAttributeName:UIFont.systemFont(ofSize: 14)], context: nil)
+            let rect = NSString(string: statusText).boundingRect(with: Utility.shared.CGSizeMake(view.frame.width, 1000), options: NSStringDrawingOptions.usesFontLeading.union(NSStringDrawingOptions.usesLineFragmentOrigin), attributes: [NSAttributedString.Key.font:UIFont.systemFont(ofSize: 14)], context: nil)
             return Utility.shared.CGSizeMake(view.frame.width, rect.height+344+24)
         }
         return Utility.shared.CGSizeMake(view.frame.width, 500)
@@ -138,10 +138,17 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
             navBarCoverView.frame = Utility.shared.CGRectMake(0, 0, self.view.frame.width, 64)
             navBarCoverView.backgroundColor = .black
             navBarCoverView.alpha = 0
+//            let keyWindow = UIApplication.shared.connectedScenes
+//                    .filter({$0.activationState == .foregroundActive})
+//                    .map({$0 as? UIWindowScene})
+//                    .compactMap({$0})
+//                    .first?.windows
+//                    .filter({$0.isKeyWindow}).first
+            
             if let keyWindow = UIApplication.shared.keyWindow
             {
                 keyWindow.addSubview(navBarCoverView)
-                tabBarCoverView.frame = Utility.shared.CGRectMake(0, keyWindow.frame.height-49, self.view.frame.width, 49)
+                tabBarCoverView.frame = Utility.shared.CGRectMake(0, (keyWindow.frame.height)-49, self.view.frame.width, 49)
                 tabBarCoverView.backgroundColor = .black
                 tabBarCoverView.alpha = 0
                 keyWindow.addSubview(tabBarCoverView)
@@ -167,7 +174,7 @@ class FeedController: UICollectionViewController, UICollectionViewDelegateFlowLa
         }
     }
     
-    func zoomOut()
+    @objc func zoomOut()
     {
          if let startingFrame = statusImageView?.superview?.convert((statusImageView?.frame)!, to: nil)
          {
@@ -193,7 +200,7 @@ class FeedCell:UICollectionViewCell
 {
     
     var feedController:FeedController?
-    func animate()
+    @objc func animate()
     {
         feedController?.animateImageView(statusImageView: statusImageView)
     }
@@ -204,13 +211,13 @@ class FeedCell:UICollectionViewCell
         {
             if let name = post?.name
             {
-                let attributedText = NSMutableAttributedString(string: name, attributes: [NSFontAttributeName: UIFont.boldSystemFont(ofSize: 14)])
+                let attributedText = NSMutableAttributedString(string: name, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 14)])
                 if let city = post?.location?.city, let state = post?.location?.state {
-                    attributedText.append(NSAttributedString(string: "\n\(city), \(state)  •  ", attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 12), NSForegroundColorAttributeName:
+                    attributedText.append(NSAttributedString(string: "\n\(city), \(state)  •  ", attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12), NSAttributedString.Key.foregroundColor:
                         UIColor.returnRGBColor(r: 155, g: 161, b: 161, alpha: 1)]))
                     let paragraphStyle = NSMutableParagraphStyle()
                     paragraphStyle.lineSpacing = 4
-                    attributedText.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: NSMakeRange(0, attributedText.string.characters.count))
+                    attributedText.addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: NSMakeRange(0, attributedText.string.count))
                     let attachment = NSTextAttachment()
                     attachment.image = UIImage(named: "globe_small")
                     attachment.bounds = CGRect(x: 0, y: -2, width: 12, height: 12)
